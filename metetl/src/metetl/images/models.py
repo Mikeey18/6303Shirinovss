@@ -1,11 +1,21 @@
-import numpy as np
-import cv2
-from dataclasses import dataclass
+"""Модели данных для изображений."""
+
+import numpy as np, cv2, warnings
+from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
-import os
+
+from metetl.logging_config import get_logger
+
+# Подавляем только divide by zero и invalid value
+warnings.filterwarnings('ignore', message='divide by zero encountered in power')
+warnings.filterwarnings('ignore', message='invalid value encountered in cast')
+
+logger = get_logger(__name__)
+
 
 @dataclass
 class Metadata:
+    """Метаданные произведения искусства."""
     object_id: str
     title: Optional[str] = None
     artist: Optional[str] = None
@@ -16,6 +26,8 @@ class Metadata:
 
 
 class Artwork:
+    """Класс для работы с изображением и его метаданными."""
+    
     __slots__ = ('_image', '_metadata', '_image_path', '_index')
     
     def __init__(self, image: np.ndarray, metadata: Metadata, image_path: str = "", index: int = 0):
@@ -55,6 +67,7 @@ class Artwork:
         return f"Artwork(ID: {self._metadata.object_id}, Title: {self._metadata.title}, Shape: {self._image.shape})"
     
     def grayscale(self) -> np.ndarray:
+        """Преобразование в оттенки серого."""
         height, width = self._image.shape[:2]
         result = np.zeros((height, width))
         eye_vector = np.array([0.299, 0.587, 0.114])
@@ -62,6 +75,7 @@ class Artwork:
         return result.astype(np.uint8)
     
     def convolution(self, kernel: np.ndarray) -> np.ndarray:
+        """Свертка изображения с ядром."""
         kernel_height, kernel_width = kernel.shape
         padded_height, padded_width = kernel_height // 2, kernel_width // 2
         
@@ -76,10 +90,12 @@ class Artwork:
         return result.astype(np.uint8)
     
     def gaussian_blur(self, kernel_size: int = 3) -> np.ndarray:
+        """Размытие по Гауссу."""
         kernel = self._get_gaussian_kernel(kernel_size, kernel_size / 6)
         return self.convolution(kernel).astype(np.uint8)
     
     def sobel(self) -> np.ndarray:
+        """Детектор границ Собеля."""
         kernel_x = np.array([[-1, 0, 1],
                              [-2, 0, 2],
                              [-1, 0, 1]], dtype=np.float32)
@@ -98,12 +114,14 @@ class Artwork:
         return grad.astype(np.uint8)
     
     def gamma_correction(self, gamma: float = 1.0) -> np.ndarray:
+        """Гамма-коррекция."""
         normalized = self._image.astype(np.float32) / 255.0
         corrected = np.power(normalized, gamma)
         result = (corrected * 255).astype(np.uint8)
         return result
     
     def histogram_equalization(self) -> np.ndarray:
+        """Эквализация гистограммы."""
         lab = cv2.cvtColor(self._image, cv2.COLOR_BGR2LAB)
         l_channel, a_channel, b_channel = cv2.split(lab)
         
@@ -122,6 +140,7 @@ class Artwork:
     
     @staticmethod
     def _get_gaussian_kernel(kernel_size: int, sigma: float) -> np.ndarray:
+        """Создание гауссова ядра."""
         ax = np.linspace(-(kernel_size // 2), kernel_size // 2, kernel_size)
         gauss = np.exp(-((ax / sigma) ** 2) / 2)
         kernel = np.outer(gauss, gauss)

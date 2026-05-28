@@ -1,4 +1,8 @@
 __pycache__
 .project_venv
 paintings
-data
+metetl/data/plots
+metetl/data/MetObjects.csv
+metetl/data/to_download.json
+metetl/images
+metetl/logs

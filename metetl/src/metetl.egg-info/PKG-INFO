@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: metetl
+Version: 1.0.0
+Summary: MET ETL Pipeline for artworks processing
+Requires-Python: >=3.9
+Requires-Dist: click>=8.0.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: aiofiles>=22.0.0
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: opencv-python>=4.5.0
+Requires-Dist: matplotlib>=3.5.0
