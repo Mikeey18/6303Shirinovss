@@ -3,7 +3,7 @@ import numpy as np, random, os, task1 as t1, task2 as t2
 def main():
     paintings_dir = t1.setup_directories()
     
-    csv_path = 'MetObjects.csv'
+    csv_path = 'data/MetObjects.csv'
     
     all_objects = t1.read_csv_file(csv_path)
     print(f"Загружено {len(all_objects)} объектов")
